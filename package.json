@@ -1,0 +1,21 @@
+{
+  "name": "SciVi-EEG-Chart",
+  "version": "1.0.0",
+  "description": "Fast EEG charting for NeuroSciVi",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "./build.sh debug",
+    "release": "./build.sh release"
+  },
+  "author": "Konstantin Ryabinin",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "typescript": "^4.3.2",
+    "uglify-js": "^3.3.11"
+  },
+  "dependencies": {
+    "@types/gl-matrix": "^3.2.0",
+    "gl-matrix": "^3.3.0"
+  }
+}
