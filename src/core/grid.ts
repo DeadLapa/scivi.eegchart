@@ -1,4 +1,5 @@
 import { EEGShaderProgram } from './shader';
+import { EEGScreen } from './renderer'
 
 export class EEGGrid
 {
@@ -21,21 +22,17 @@ export class EEGGrid
             // fragment shader
             "precision highp float;" +
             "precision lowp int;" +
-            "void main() { gl_FragColor = vec4(0.6, 0.6, 0.6, 1.0); }",
+            "void main() { gl_FragColor = vec4(0.4, 0.4, 0.4, 1.0); }",
             this.m_gl
         );
         this.m_shader.attribute("a_position", 2, 0, 2);
     }
 
-    set channelHeight(ch: number)
+    public render(channelCount: number, channelHeight: number)
     {
-        this.m_channelHeight = ch;
-    }
-
-    public render(channelCount: number)
-    {
-        if (this.m_channelCount != channelCount) {
+        if (this.m_channelCount != channelCount || this.m_channelHeight != channelHeight) {
             this.m_channelCount = channelCount;
+            this.m_channelHeight = channelHeight;
             if (!this.m_vbo)
                 this.m_vbo = this.m_gl.createBuffer();
             let vertices = new Float32Array(this.m_channelCount * 4);
@@ -45,14 +42,13 @@ export class EEGGrid
                 vertices[j++] = y;
                 vertices[j++] = 1.0;
                 vertices[j++] = y;
-                console.log(y);
             }
             this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
             this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, vertices, this.m_gl.STATIC_DRAW);
         }
 
-        this.m_shader.activate();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
+        this.m_shader.activate();
         this.m_gl.drawArrays(this.m_gl.LINES, 0, this.m_channelCount * 2);
         this.m_shader.deactivate();
     }

@@ -1,6 +1,9 @@
 import { vec2, vec3, mat4 } from 'gl-matrix';
 import { EEGChannel } from './channel';
 import { EEGGrid } from './grid';
+import { EEGShaderProgram } from './shader';
+
+export type EEGScreen = { width: number, height: number, cScale: number };
 
 export class EEGChart
 {
@@ -9,9 +12,8 @@ export class EEGChart
     private m_gl: WebGLRenderingContext | null;
     private m_canvas: HTMLCanvasElement;
     private m_grid: EEGGrid;
-    private m_cmScale: vec2; /* Multiply length in cm by this value to convert to scene. */
-
-    static readonly CHANNEL_HEIGHT_IN_CM = 3;
+    private m_screen: EEGScreen;
+    private m_channelShader: EEGShaderProgram;
 
     constructor(private m_view: HTMLElement)
     {
@@ -20,9 +22,10 @@ export class EEGChart
 
         this.m_canvas = document.createElement("canvas");
         this.m_view.appendChild(this.m_canvas);
-        this.resizeCanvas(this.m_view.clientWidth, this.m_view.clientHeight);
+        this.m_screen = { width: this.m_view.clientWidth, height: this.m_view.clientHeight, cScale: window.devicePixelRatio || 1};
+        this.resizeCanvas();
         try {
-            this.m_gl = this.m_canvas.getContext("webgl");
+            this.m_gl = this.m_canvas.getContext("webgl", { antialias: false });
         } catch (e) {
             this.m_gl = null;
             alert("Could not initialize WebGL");
@@ -31,8 +34,23 @@ export class EEGChart
         let gl = this.m_gl!!;
 
         this.m_grid = new EEGGrid(gl);
-        this.m_cmScale = vec2.create();
-        this.reshape(this.m_view.clientWidth, this.m_view.clientHeight);
+        this.reshape(this.m_screen.width, this.m_screen.height);
+
+        this.m_channelShader = new EEGShaderProgram(
+            // vertex shader
+            "precision highp float;" +
+            "precision lowp int;" +
+            "attribute vec2 a_position;" +
+            "uniform mat4 u_mvp;" +
+            "void main() { gl_Position = u_mvp * vec4(a_position, 0.0, 1.0); }",
+            // fragment shader
+            "precision highp float;" +
+            "precision lowp int;" +
+            "uniform vec3 u_color;" +
+            "void main() { gl_FragColor = vec4(u_color, 1.0); }",
+            this.m_gl!!
+        );
+        this.m_channelShader.attribute("a_position", 2, 0, 2);
     }
 
     private hex2vec3(hex: string): vec3
@@ -74,13 +92,8 @@ export class EEGChart
     public appendChannelData(channel: string, data: number[])
     {
         if (this.m_channels[channel] === undefined)
-            this.m_channels[channel] = new EEGChannel(this.nextColor(), this.m_historyLength, this.m_gl!!);
-        let d = this.m_channels[channel].data;
-        for (let i = data.length - 1, j = 0; i < this.m_historyLength; ++i, ++j)
-            d[j] = d[i];
-        for (let i = Math.max(this.m_historyLength - data.length, 0), j = 0; i < this.m_historyLength; ++i, ++j)
-            d[i] = data[j];
-        this.m_channels[channel].update();
+            this.m_channels[channel] = new EEGChannel(this.nextColor(), this.m_historyLength, this.m_channelShader, this.m_gl!!);
+        this.m_channels[channel].appendData(data);
     }
 
     public render()
@@ -89,24 +102,26 @@ export class EEGChart
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        this.m_grid.render(5);
+        const channelHeightInCM = 3;
+        const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
+
+        this.m_grid.render(5, channelHeight);
     }
 
-    private resizeCanvas(w: number, h: number): number
+    private resizeCanvas()
     {
-        const devicePixelRatio = window.devicePixelRatio || 1;
-        this.m_canvas.style.width = w + "px";
-        this.m_canvas.style.height = h + "px";
-        this.m_canvas.width = w * devicePixelRatio;
-        this.m_canvas.height = h * devicePixelRatio;
-        return devicePixelRatio;
+        this.m_canvas.style.width = this.m_screen.width + "px";
+        this.m_canvas.style.height = this.m_screen.height + "px";
+        this.m_canvas.width = this.m_screen.width * this.m_screen.cScale;
+        this.m_canvas.height = this.m_screen.height * this.m_screen.cScale;
     }
 
     public reshape(w: number, h: number)
     {
-        const devicePixelRatio = this.resizeCanvas(w, h);
-        this.m_cmScale = vec2.fromValues(2.0 / (w * devicePixelRatio / 96.0 * 2.54), 2.0 / (h * devicePixelRatio / 96.0 * 2.54));
-        this.m_grid.channelHeight = this.m_cmScale[1] * EEGChart.CHANNEL_HEIGHT_IN_CM;
-        this.m_gl!!.viewport(0, 0, w * devicePixelRatio, h * devicePixelRatio);
+        this.m_screen.cScale = window.devicePixelRatio || 1;
+        this.m_screen.width = w;
+        this.m_screen.height = h;
+        this.resizeCanvas();
+        this.m_gl!!.viewport(0, 0, w * this.m_screen.cScale, h * this.m_screen.cScale);
     }
 }

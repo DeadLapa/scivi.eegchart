@@ -13,21 +13,20 @@
             {
                 g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"));
                 g_eegChart.render();
-            }
 
-            function draw()
-            {
-                g_eegChart.render();
-            }
-
-            function reshape()
-            {
-                g_eegChart.reshape();
+                setInterval(function () {
+                    g_eegChart.appendChannelData("A", [ Math.random() ]);
+                    g_eegChart.appendChannelData("B", [ Math.random() ]);
+                    g_eegChart.appendChannelData("C", [ Math.random() ]);
+                    g_eegChart.appendChannelData("D", [ Math.random() ]);
+                    g_eegChart.appendChannelData("E", [ Math.random() ]);
+                    g_eegChart.render();
+                }, 1000);
             }
         </script>
     </head>
 
-    <body onload="main();">
+    <body onload="main();" style="margin: 0px; padding: 0px;">
         <div id="chart-test" style="width: 100vw; height: 100vh;"></div>
     </body>
 </html>

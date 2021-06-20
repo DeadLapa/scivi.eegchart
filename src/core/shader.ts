@@ -1,3 +1,4 @@
+import { vec3, mat4 } from 'gl-matrix';
 
 type EEGAttribute = { location: number, length: number, offset: number, stride: number };
 
@@ -5,6 +6,7 @@ export class EEGShaderProgram
 {
     private m_program: WebGLProgram | null;
     private m_attributes: EEGAttribute[];
+    private m_uniforms: { [ id: string ]: WebGLUniformLocation | null };
 
     constructor(vCode: string, fCode: string, private m_gl: WebGLRenderingContext)
     {
@@ -23,6 +25,7 @@ export class EEGShaderProgram
             this.m_program = null;
         }
         this.m_attributes = [];
+        this.m_uniforms = {};
     }
 
     private compileShader(code: string, type: number): WebGLShader | null
@@ -45,6 +48,23 @@ export class EEGShaderProgram
             offset: offset * 4,
             stride: stride * 4
         });
+    }
+
+    private uniformLocation(name: string): WebGLUniformLocation | null
+    {
+        if (this.m_uniforms[name] === undefined)
+            this.m_uniforms[name] = this.m_gl.getUniformLocation(this.m_program!!, name);
+        return this.m_uniforms[name];
+    }
+
+    public setUniformMat4(name: string, m: mat4)
+    {
+        this.m_gl.uniformMatrix4fv(this.uniformLocation(name), false, m);
+    }
+
+    public setUniformVec3(name: string, v: vec3)
+    {
+        this.m_gl.uniform3fv(this.uniformLocation(name), v);
     }
 
     public activate()

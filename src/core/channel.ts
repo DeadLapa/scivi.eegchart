@@ -1,4 +1,5 @@
-import { vec3 } from 'gl-matrix';
+import { vec3, mat4 } from 'gl-matrix';
+import { EEGShaderProgram } from './shader';
 
 export class EEGChannel
 {
@@ -6,24 +7,46 @@ export class EEGChannel
     private m_data: Float32Array;
 
     constructor(private m_color: vec3,
-                history: number,
+                private m_historyLength: number,
+                private m_shader: EEGShaderProgram,
                 private m_gl: WebGLRenderingContext)
     {
-        this.m_data = new Float32Array(history);
-        this.m_data.fill(0);
+        const n = this.m_historyLength * 2;
+        this.m_data = new Float32Array(n);
+        for (let i = 0, x = 0; i < n; ++x) {
+            this.m_data[i++] = x;
+            this.m_data[i++] = 0;
+        }
         this.m_vbo = this.m_gl.createBuffer();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, this.m_data, this.m_gl.DYNAMIC_DRAW);
     }
 
-    get data(): Float32Array
+    public appendData(data: number[])
     {
-        return this.m_data;
-    }
-
-    public update()
-    {
+        const n = this.m_historyLength * 2;
+        for (let i = (data.length - 1) * 2 + 1, j = 1; i < n; i += 2, j += 2)
+            this.m_data[j] = this.m_data[i];
+        for (let i = Math.max(this.m_historyLength - data.length, 0) * 2 + 1, j = 0; i < n; i += 2, ++j)
+            this.m_data[i] = data[j];
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferSubData(this.m_gl.ARRAY_BUFFER, 0, this.m_data);
+    }
+
+    public render(channelIndex: number, channelHeight: number, channelScale: number)
+    {
+        const mvp = mat4.fromValues(
+            1.0 / this.m_historyLength, 0.0,                                0.0, 0.0,
+            0.0,                        channelScale,                       0.0, 0.0,
+            0.0,                        0.0,                                1.0, 0.0,
+            0.0,                        1.0 - channelHeight * channelIndex, 0.0, 1.0
+        );
+
+        this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
+        this.m_shader.activate();
+        this.m_shader.setUniformMat4("u_mvp", mvp);
+        this.m_shader.setUniformVec3("u_color", this.m_color);
+        this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
+        this.m_shader.deactivate();
     }
 }
