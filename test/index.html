@@ -7,18 +7,27 @@
         <script src="../build/scivi-eeg-chart.min.js"></script>
 
         <script>
+            var g_eegChart;
+
             function main()
             {
-                // var eegChart = new EEGChart();
-                // var container = document.getElementById("chart-test");
-                // eegChart.run(container);
-                // var EEGChart = require("EEGChart");
-                console.log(EEGChart);
+                g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"));
+                g_eegChart.render();
+            }
+
+            function draw()
+            {
+                g_eegChart.render();
+            }
+
+            function reshape()
+            {
+                g_eegChart.reshape();
             }
         </script>
     </head>
 
     <body onload="main();">
-        <div id="chart-test"></div>
+        <div id="chart-test" style="width: 100vw; height: 100vh;"></div>
     </body>
 </html>

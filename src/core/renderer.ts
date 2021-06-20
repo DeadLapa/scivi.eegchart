@@ -1,5 +1,6 @@
-import { vec3 } from 'gl-matrix';
+import { vec2, vec3, mat4 } from 'gl-matrix';
 import { EEGChannel } from './channel';
+import { EEGGrid } from './grid';
 
 export class EEGChart
 {
@@ -7,28 +8,31 @@ export class EEGChart
     private m_channels: { [ id: string ]: EEGChannel };
     private m_gl: WebGLRenderingContext | null;
     private m_canvas: HTMLCanvasElement;
+    private m_grid: EEGGrid;
+    private m_cmScale: vec2; /* Multiply length in cm by this value to convert to scene. */
+
+    static readonly CHANNEL_HEIGHT_IN_CM = 3;
 
     constructor(private m_view: HTMLElement)
     {
         this.m_historyLength = 1000;
         this.m_channels = {};
-        this.m_gl = null;
 
         this.m_canvas = document.createElement("canvas");
         this.m_view.appendChild(this.m_canvas);
-        const devicePixelRatio = window.devicePixelRatio || 1;
-        this.m_canvas.width = m_view.clientWidth * devicePixelRatio;
-        this.m_canvas.height = m_view.clientHeight * devicePixelRatio;
+        this.resizeCanvas(this.m_view.clientWidth, this.m_view.clientHeight);
         try {
             this.m_gl = this.m_canvas.getContext("webgl");
         } catch (e) {
             this.m_gl = null;
-        }
-        if (this.m_gl) {
-            this.m_gl.viewport(0, 0, this.m_canvas.width, this.m_canvas.height);
-        } else {
             alert("Could not initialize WebGL");
         }
+
+        let gl = this.m_gl!!;
+
+        this.m_grid = new EEGGrid(gl);
+        this.m_cmScale = vec2.create();
+        this.reshape(this.m_view.clientWidth, this.m_view.clientHeight);
     }
 
     private hex2vec3(hex: string): vec3
@@ -69,29 +73,40 @@ export class EEGChart
 
     public appendChannelData(channel: string, data: number[])
     {
-        if (this.m_gl) {
-            if (this.m_channels[channel] === undefined)
-                this.m_channels[channel] = new EEGChannel(this.nextColor(), this.m_historyLength, this.m_gl);
-            let d = this.m_channels[channel].data;
-            for (let i = data.length - 1, j = 0; i < this.m_historyLength; ++i, ++j)
-                d[j] = d[i];
-            for (let i = Math.max(this.m_historyLength - data.length, 0), j = 0; i < this.m_historyLength; ++i, ++j)
-                d[i] = data[j];
-            this.m_channels[channel].update();
-        }
+        if (this.m_channels[channel] === undefined)
+            this.m_channels[channel] = new EEGChannel(this.nextColor(), this.m_historyLength, this.m_gl!!);
+        let d = this.m_channels[channel].data;
+        for (let i = data.length - 1, j = 0; i < this.m_historyLength; ++i, ++j)
+            d[j] = d[i];
+        for (let i = Math.max(this.m_historyLength - data.length, 0), j = 0; i < this.m_historyLength; ++i, ++j)
+            d[i] = data[j];
+        this.m_channels[channel].update();
     }
 
     public render()
     {
+        let gl = this.m_gl!!;
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        this.m_grid.render(5);
+    }
+
+    private resizeCanvas(w: number, h: number): number
+    {
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        this.m_canvas.style.width = w + "px";
+        this.m_canvas.style.height = h + "px";
+        this.m_canvas.width = w * devicePixelRatio;
+        this.m_canvas.height = h * devicePixelRatio;
+        return devicePixelRatio;
     }
 
     public reshape(w: number, h: number)
     {
-        if (this.m_gl) {
-            const devicePixelRatio = window.devicePixelRatio || 1;
-            this.m_canvas.width = w * devicePixelRatio;
-            this.m_canvas.height = h * devicePixelRatio;
-            this.m_gl.viewport(0, 0, w, h);
-        }
+        const devicePixelRatio = this.resizeCanvas(w, h);
+        this.m_cmScale = vec2.fromValues(2.0 / (w * devicePixelRatio / 96.0 * 2.54), 2.0 / (h * devicePixelRatio / 96.0 * 2.54));
+        this.m_grid.channelHeight = this.m_cmScale[1] * EEGChart.CHANNEL_HEIGHT_IN_CM;
+        this.m_gl!!.viewport(0, 0, w * devicePixelRatio, h * devicePixelRatio);
     }
 }
