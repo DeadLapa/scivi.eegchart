@@ -9,7 +9,7 @@ export class EEGChannel
     constructor(private m_name: string,
                 private m_color: vec3,
                 private m_historyLength: number,
-                private m_shader: EEGShaderProgram,
+                private m_shaderProgram: EEGShaderProgram,
                 private m_gl: WebGLRenderingContext)
     {
         const n = this.m_historyLength * 2;
@@ -49,10 +49,10 @@ export class EEGChannel
         );
 
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
-        this.m_shader.activate();
-        this.m_shader.setUniformMat4("u_mvp", mvp);
-        this.m_shader.setUniformVec3("u_color", this.m_color);
+        this.m_shaderProgram.activate();
+        this.m_shaderProgram.setUniformMat4("u_mvp", mvp);
+        this.m_shaderProgram.setUniformVec3("u_color", this.m_color);
         this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
-        this.m_shader.deactivate();
+        this.m_shaderProgram.deactivate();
     }
 }
