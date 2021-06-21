@@ -6,10 +6,11 @@ export class EEGChannel
     private m_vbo: WebGLBuffer | null;
     private m_data: Float32Array;
 
+    private static m_shaderProgram: EEGShaderProgram
+
     constructor(private m_name: string,
                 private m_color: vec3,
                 private m_historyLength: number,
-                private m_shaderProgram: EEGShaderProgram,
                 private m_gl: WebGLRenderingContext)
     {
         const n = this.m_historyLength * 2;
@@ -21,6 +22,24 @@ export class EEGChannel
         this.m_vbo = this.m_gl.createBuffer();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, this.m_data, this.m_gl.DYNAMIC_DRAW);
+
+        if (!EEGChannel.m_shaderProgram) {
+            EEGChannel.m_shaderProgram = new EEGShaderProgram(
+                // vertex shader
+                "precision highp float;" +
+                "precision lowp int;" +
+                "attribute vec2 a_position;" +
+                "uniform mat4 u_mvp;" +
+                "void main() { gl_Position = u_mvp * vec4(a_position, 0.0, 1.0); }",
+                // fragment shader
+                "precision highp float;" +
+                "precision lowp int;" +
+                "uniform vec3 u_color;" +
+                "void main() { gl_FragColor = vec4(u_color, 1.0); }",
+                this.m_gl!!
+            );
+            EEGChannel.m_shaderProgram.attribute("a_position", 2, 0, 2);
+        }
     }
 
     get name(): string
@@ -49,10 +68,10 @@ export class EEGChannel
         );
 
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
-        this.m_shaderProgram.activate();
-        this.m_shaderProgram.setUniformMat4("u_mvp", mvp);
-        this.m_shaderProgram.setUniformVec3("u_color", this.m_color);
+        EEGChannel.m_shaderProgram.activate();
+        EEGChannel.m_shaderProgram.setUniformMat4("u_mvp", mvp);
+        EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
         this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
-        this.m_shaderProgram.deactivate();
+        EEGChannel.m_shaderProgram.deactivate();
     }
 }

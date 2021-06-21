@@ -14,7 +14,6 @@ export class EEGChart
     private m_canvas: HTMLCanvasElement;
     private m_grid: EEGGrid;
     private m_screen: EEGScreen;
-    private m_channelShaderProgram: EEGShaderProgram;
     private m_labelShaderProgram: EEGShaderProgram;
 
     constructor(private m_view: HTMLElement)
@@ -38,22 +37,6 @@ export class EEGChart
 
         this.m_grid = new EEGGrid(gl);
         this.reshape(this.m_screen.width, this.m_screen.height);
-
-        this.m_channelShaderProgram = new EEGShaderProgram(
-            // vertex shader
-            "precision highp float;" +
-            "precision lowp int;" +
-            "attribute vec2 a_position;" +
-            "uniform mat4 u_mvp;" +
-            "void main() { gl_Position = u_mvp * vec4(a_position, 0.0, 1.0); }",
-            // fragment shader
-            "precision highp float;" +
-            "precision lowp int;" +
-            "uniform vec3 u_color;" +
-            "void main() { gl_FragColor = vec4(u_color, 1.0); }",
-            this.m_gl!!
-        );
-        this.m_channelShaderProgram.attribute("a_position", 2, 0, 2);
 
         this.m_labelShaderProgram = new EEGShaderProgram(
             // vertex shader
@@ -111,7 +94,7 @@ export class EEGChart
     {
         if (this.m_channelsMap[channel] === undefined) {
             const n = this.m_channels.length;
-            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_channelShaderProgram, this.m_gl!!));
+            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!));
             this.m_channelsMap[channel] = n;
         }
         this.m_channels[this.m_channelsMap[channel]].appendData(data);
@@ -123,7 +106,7 @@ export class EEGChart
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        const channelHeightInCM = 3;
+        const channelHeightInCM = 1.5;
         const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
 
         this.m_grid.render(this.m_channels.length, channelHeight);
