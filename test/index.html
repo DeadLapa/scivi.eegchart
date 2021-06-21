@@ -9,19 +9,24 @@
         <script>
             var g_eegChart;
 
+            function data()
+            {
+                return (Math.random() < 0.5 ? -1 : 1) * Math.random();
+            }
+
             function main()
             {
                 g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"));
                 g_eegChart.render();
 
                 setInterval(function () {
-                    g_eegChart.appendChannelData("A", [ Math.random() ]);
-                    g_eegChart.appendChannelData("B", [ Math.random() ]);
-                    g_eegChart.appendChannelData("C", [ Math.random() ]);
-                    g_eegChart.appendChannelData("D", [ Math.random() ]);
-                    g_eegChart.appendChannelData("E", [ Math.random() ]);
+                    g_eegChart.appendChannelData("A", [ data() ]);
+                    g_eegChart.appendChannelData("B", [ data() ]);
+                    g_eegChart.appendChannelData("C", [ data() ]);
+                    g_eegChart.appendChannelData("D", [ data() ]);
+                    g_eegChart.appendChannelData("E", [ data() ]);
                     g_eegChart.render();
-                }, 1000);
+                }, 10);
             }
         </script>
     </head>

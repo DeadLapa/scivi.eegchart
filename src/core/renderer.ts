@@ -8,7 +8,8 @@ export type EEGScreen = { width: number, height: number, cScale: number };
 export class EEGChart
 {
     private m_historyLength: number;
-    private m_channels: { [ id: string ]: EEGChannel };
+    private m_channels: EEGChannel[];
+    private m_channelsMap: { [ id: string ]: number };
     private m_gl: WebGLRenderingContext | null;
     private m_canvas: HTMLCanvasElement;
     private m_grid: EEGGrid;
@@ -18,14 +19,15 @@ export class EEGChart
     constructor(private m_view: HTMLElement)
     {
         this.m_historyLength = 1000;
-        this.m_channels = {};
+        this.m_channels = [];
+        this.m_channelsMap = {};
 
         this.m_canvas = document.createElement("canvas");
         this.m_view.appendChild(this.m_canvas);
         this.m_screen = { width: this.m_view.clientWidth, height: this.m_view.clientHeight, cScale: window.devicePixelRatio || 1};
         this.resizeCanvas();
         try {
-            this.m_gl = this.m_canvas.getContext("webgl", { antialias: false });
+            this.m_gl = this.m_canvas.getContext("webgl", { antialias: true });
         } catch (e) {
             this.m_gl = null;
             alert("Could not initialize WebGL");
@@ -78,7 +80,7 @@ export class EEGChart
         return vec3.fromValues(result[0] / 255.0, result[1] / 255.0, result[2] / 255.0);
     }
 
-    private nextColor(): vec3
+    private getColor(index: number): vec3
     {
         const colors = [
             "#F2645A", "#1DAAB2", "#F5B455", "#88D9F2", "#C0A141",
@@ -86,14 +88,17 @@ export class EEGChart
             "#809549", "#5693D6", "#2DAA31", "#C569CD", "#54B075",
             "#9F5A8F", "#2D8764", "#ADADE9", "#65B1A1", "#A030CB"
         ];
-        return this.hex2vec3(colors[Object.keys(this.m_channels).length % colors.length]);
+        return this.hex2vec3(colors[index % colors.length]);
     }
 
     public appendChannelData(channel: string, data: number[])
     {
-        if (this.m_channels[channel] === undefined)
-            this.m_channels[channel] = new EEGChannel(this.nextColor(), this.m_historyLength, this.m_channelShader, this.m_gl!!);
-        this.m_channels[channel].appendData(data);
+        if (this.m_channelsMap[channel] === undefined) {
+            const n = this.m_channels.length;
+            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_channelShader, this.m_gl!!));
+            this.m_channelsMap[channel] = n;
+        }
+        this.m_channels[this.m_channelsMap[channel]].appendData(data);
     }
 
     public render()
@@ -105,7 +110,10 @@ export class EEGChart
         const channelHeightInCM = 3;
         const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
 
-        this.m_grid.render(5, channelHeight);
+        this.m_grid.render(this.m_channels.length, channelHeight);
+        this.m_channels.forEach((channel: EEGChannel, index: number) => {
+            channel.render(index, channelHeight, channelHeight / 2);
+        });
     }
 
     private resizeCanvas()

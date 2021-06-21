@@ -6,7 +6,8 @@ export class EEGChannel
     private m_vbo: WebGLBuffer | null;
     private m_data: Float32Array;
 
-    constructor(private m_color: vec3,
+    constructor(private m_name: string,
+                private m_color: vec3,
                 private m_historyLength: number,
                 private m_shader: EEGShaderProgram,
                 private m_gl: WebGLRenderingContext)
@@ -22,10 +23,15 @@ export class EEGChannel
         this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, this.m_data, this.m_gl.DYNAMIC_DRAW);
     }
 
+    get name(): string
+    {
+        return this.m_name;
+    }
+
     public appendData(data: number[])
     {
         const n = this.m_historyLength * 2;
-        for (let i = (data.length - 1) * 2 + 1, j = 1; i < n; i += 2, j += 2)
+        for (let i = data.length * 2 + 1, j = 1; i < n; i += 2, j += 2)
             this.m_data[j] = this.m_data[i];
         for (let i = Math.max(this.m_historyLength - data.length, 0) * 2 + 1, j = 0; i < n; i += 2, ++j)
             this.m_data[i] = data[j];
@@ -36,10 +42,10 @@ export class EEGChannel
     public render(channelIndex: number, channelHeight: number, channelScale: number)
     {
         const mvp = mat4.fromValues(
-            1.0 / this.m_historyLength, 0.0,                                0.0, 0.0,
-            0.0,                        channelScale,                       0.0, 0.0,
-            0.0,                        0.0,                                1.0, 0.0,
-            0.0,                        1.0 - channelHeight * channelIndex, 0.0, 1.0
+            2.0 / (this.m_historyLength - 1), 0.0,                                        0.0, 0.0,
+            0.0,                              channelScale,                               0.0, 0.0,
+            0.0,                              0.0,                                        1.0, 0.0,
+            -1.0,                             1.0 - channelHeight * (channelIndex + 0.5), 0.0, 1.0
         );
 
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
