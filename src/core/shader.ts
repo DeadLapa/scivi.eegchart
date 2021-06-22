@@ -67,6 +67,11 @@ export class EEGShaderProgram
         this.m_gl.uniform3fv(this.uniformLocation(name), v);
     }
 
+    public setUniformTextureUnit(name: string, u: number)
+    {
+        this.m_gl.uniform1i(this.uniformLocation(name), u);
+    }
+
     public activate()
     {
         this.m_gl.useProgram(this.m_program);

@@ -1,12 +1,15 @@
 import { vec3, mat4 } from 'gl-matrix';
 import { EEGShaderProgram } from './shader';
+import { EEGScreen } from './renderer';
+import { EEGLabel } from './label';
 
 export class EEGChannel
 {
     private m_vbo: WebGLBuffer | null;
     private m_data: Float32Array;
+    private m_label: EEGLabel;
 
-    private static m_shaderProgram: EEGShaderProgram
+    private static m_shaderProgram: EEGShaderProgram;
 
     constructor(private m_name: string,
                 private m_color: vec3,
@@ -22,6 +25,8 @@ export class EEGChannel
         this.m_vbo = this.m_gl.createBuffer();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, this.m_data, this.m_gl.DYNAMIC_DRAW);
+
+        this.m_label = new EEGLabel(this.m_name, this.m_gl);
 
         if (!EEGChannel.m_shaderProgram) {
             EEGChannel.m_shaderProgram = new EEGShaderProgram(
@@ -58,7 +63,7 @@ export class EEGChannel
         this.m_gl.bufferSubData(this.m_gl.ARRAY_BUFFER, 0, this.m_data);
     }
 
-    public render(channelIndex: number, channelHeight: number, channelScale: number)
+    public render(channelIndex: number, channelHeight: number, channelScale: number, screen: EEGScreen)
     {
         const mvp = mat4.fromValues(
             2.0 / (this.m_historyLength - 1), 0.0,                                        0.0, 0.0,
@@ -73,5 +78,7 @@ export class EEGChannel
         EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
         this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
         EEGChannel.m_shaderProgram.deactivate();
+
+        this.m_label.render(channelIndex, channelHeight, screen);
     }
 }

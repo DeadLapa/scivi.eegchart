@@ -14,7 +14,6 @@ export class EEGChart
     private m_canvas: HTMLCanvasElement;
     private m_grid: EEGGrid;
     private m_screen: EEGScreen;
-    private m_labelShaderProgram: EEGShaderProgram;
 
     constructor(private m_view: HTMLElement)
     {
@@ -27,7 +26,7 @@ export class EEGChart
         this.m_screen = { width: this.m_view.clientWidth, height: this.m_view.clientHeight, cScale: window.devicePixelRatio || 1};
         this.resizeCanvas();
         try {
-            this.m_gl = this.m_canvas.getContext("webgl", { antialias: true });
+            this.m_gl = this.m_canvas.getContext("webgl", { antialias: true, premultipliedAlpha: false, alpha: false });
         } catch (e) {
             this.m_gl = null;
             alert("Could not initialize WebGL");
@@ -38,20 +37,10 @@ export class EEGChart
         this.m_grid = new EEGGrid(gl);
         this.reshape(this.m_screen.width, this.m_screen.height);
 
-        this.m_labelShaderProgram = new EEGShaderProgram(
-            // vertex shader
-            "precision highp float;" +
-            "precision lowp int;" +
-            "attribute vec2 a_position;" +
-            "uniform mat4 u_mvp;" +
-            "void main() { gl_Position = u_mvp * vec4(a_position, 0.0, 1.0); }",
-            // fragment shader
-            "precision highp float;" +
-            "precision lowp int;" +
-            "uniform vec3 u_color;" +
-            "void main() { gl_FragColor = vec4(u_color, 1.0); }",
-            this.m_gl!!
-        );
+        if (this.m_gl) {
+            this.m_gl.enable(this.m_gl.BLEND);
+            this.m_gl.blendFunc(this.m_gl.SRC_ALPHA, this.m_gl.ONE_MINUS_SRC_ALPHA);
+        }
     }
 
     private hex2vec3(hex: string): vec3
@@ -111,7 +100,7 @@ export class EEGChart
 
         this.m_grid.render(this.m_channels.length, channelHeight);
         this.m_channels.forEach((channel: EEGChannel, index: number) => {
-            channel.render(index, channelHeight, channelHeight / 2);
+            channel.render(index, channelHeight, channelHeight / 2, this.m_screen);
         });
     }
 
