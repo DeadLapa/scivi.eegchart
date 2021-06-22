@@ -26,7 +26,7 @@ export class EEGChannel
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferData(this.m_gl.ARRAY_BUFFER, this.m_data, this.m_gl.DYNAMIC_DRAW);
 
-        this.m_label = new EEGLabel(this.m_name, this.m_gl);
+        this.m_label = new EEGLabel(this.m_name, this.m_color, this.m_gl);
 
         if (!EEGChannel.m_shaderProgram) {
             EEGChannel.m_shaderProgram = new EEGShaderProgram(

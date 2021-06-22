@@ -1,4 +1,4 @@
-import { mat4 } from 'gl-matrix';
+import { vec3, mat4 } from 'gl-matrix';
 import { EEGShaderProgram } from './shader';
 import { EEGScreen } from './renderer';
 
@@ -11,7 +11,7 @@ export class EEGLabel
     private static m_vbo: WebGLBuffer | null;
     private static m_shaderProgram: EEGShaderProgram;
 
-    constructor(private m_text: string, private m_gl: WebGLRenderingContext)
+    constructor(private m_text: string, private m_color: vec3, private m_gl: WebGLRenderingContext)
     {
         this.m_texture = null;
         this.m_size = { width: 0, height: 0 };
@@ -47,6 +47,27 @@ export class EEGLabel
         }
     }
 
+    private roundRect(ctx: CanvasRenderingContext2D,
+                      x: number, y: number, width: number, height: number, radius: number,
+                      fill: boolean, stroke: boolean)
+    {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (fill)
+            ctx.fill();
+        if (stroke)
+            ctx.stroke();
+    }
+
     public render(channelIndex: number, channelHeight: number, screen: EEGScreen)
     {
         if (!this.m_texture || screen.cScale != this.m_cScale) {
@@ -58,16 +79,20 @@ export class EEGLabel
             let ctx = cvs.getContext("2d");
             if (ctx) {
                 const fontSize = 14 * screen.cScale;
+                const padding = 5 * screen.cScale;
+                const radius = 8 * screen.cScale;
                 ctx.font = fontSize + "px Helvetica Neue, Helvetica, Arial, sans-serif";
-                this.m_size = { width: ctx.measureText(this.m_text).width, height: fontSize + 2 };
+                // this.m_size = { width: ctx.measureText(this.m_text).width + padding * 2, height: fontSize + 2 };
+                this.m_size = { width: 30 * screen.cScale, height: 20 * screen.cScale };
                 cvs.width = this.m_size.width;
                 cvs.height = this.m_size.height;
                 ctx.textBaseline = "middle";
+                ctx.textAlign = "center";
                 ctx.font = fontSize + "px Helvetica Neue, Helvetica, Arial, sans-serif";
-                //ctx.clearRect(0, 0, this.m_size.width, this.m_size.height);
-                // ctx.fillStyle = "rgba(0, 0, 0, 0)";
-                // ctx.fill();
-                ctx.fillText(this.m_text, 0, this.m_size.height / 2.0);
+                ctx.fillStyle = "rgba(" + (this.m_color[0] * 255) + ", " + (this.m_color[1] * 255) + ", " + (this.m_color[2] * 255) + ", 1)";
+                this.roundRect(ctx, 0, 0, this.m_size.width, this.m_size.height, radius, true, false);
+                ctx.fillStyle = "rgba(0, 0, 0, 1)";
+                ctx.fillText(this.m_text, this.m_size.width / 2.0, this.m_size.height / 2.0);
             } else {
                 this.m_size = { width: 0, height: 0 };
             }
