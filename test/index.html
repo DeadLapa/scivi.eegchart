@@ -20,11 +20,18 @@
                 g_eegChart.render();
 
                 setInterval(function () {
-                    g_eegChart.appendChannelData("A", [ data() ]);
-                    g_eegChart.appendChannelData("B", [ data() ]);
-                    g_eegChart.appendChannelData("C", [ data() ]);
-                    g_eegChart.appendChannelData("D", [ data() ]);
-                    g_eegChart.appendChannelData("E", [ data() ]);
+                    g_eegChart.appendChannelData("Fp1", [ data() ]);
+                    g_eegChart.appendChannelData("Fp2", [ data() ]);
+                    g_eegChart.appendChannelData("F7", [ data() ]);
+                    g_eegChart.appendChannelData("F3", [ data() ]);
+                    g_eegChart.appendChannelData("Fz", [ data() ]);
+                    g_eegChart.appendChannelData("F4", [ data() ]);
+                    g_eegChart.appendChannelData("F8", [ data() ]);
+                    g_eegChart.appendChannelData("T3", [ data() ]);
+                    g_eegChart.appendChannelData("C3", [ data() ]);
+                    g_eegChart.appendChannelData("Cz", [ data() ]);
+                    g_eegChart.appendChannelData("C4", [ data() ]);
+                    g_eegChart.appendChannelData("T4", [ data() ]);
                     g_eegChart.render();
                 }, 10);
             }

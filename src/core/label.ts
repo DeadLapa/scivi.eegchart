@@ -68,6 +68,11 @@ export class EEGLabel
             ctx.stroke();
     }
 
+    private contrastBlack(color: vec3): boolean
+    {
+        return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2] >= 0.6;
+    }
+
     public render(channelIndex: number, channelHeight: number, screen: EEGScreen)
     {
         if (!this.m_texture || screen.cScale != this.m_cScale) {
@@ -91,7 +96,7 @@ export class EEGLabel
                 ctx.font = fontSize + "px Helvetica Neue, Helvetica, Arial, sans-serif";
                 ctx.fillStyle = "rgba(" + (this.m_color[0] * 255) + ", " + (this.m_color[1] * 255) + ", " + (this.m_color[2] * 255) + ", 1)";
                 this.roundRect(ctx, 0, 0, this.m_size.width, this.m_size.height, radius, true, false);
-                ctx.fillStyle = "rgba(0, 0, 0, 1)";
+                ctx.fillStyle = this.contrastBlack(this.m_color) ? "rgba(0, 0, 0, 1)" : "rgba(255, 255, 255, 1)";
                 ctx.fillText(this.m_text, this.m_size.width / 2.0, this.m_size.height / 2.0);
             } else {
                 this.m_size = { width: 0, height: 0 };

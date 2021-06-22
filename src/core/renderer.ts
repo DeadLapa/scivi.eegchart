@@ -61,7 +61,7 @@ export class EEGChart
                 c -= aCode - 10;
             else
                 return vec3.fromValues(0, 0, 0);
-            result[j] |= c << (4 * ((i - 1) % 2));
+            result[j] |= c << (4 * (i % 2));
             if (i % 2 === 0)
                 ++j;
         }
