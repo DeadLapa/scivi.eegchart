@@ -24,6 +24,7 @@ export class EEGChart
         this.m_canvas = document.createElement("canvas");
         this.m_view.appendChild(this.m_canvas);
         this.m_screen = { width: this.m_view.clientWidth, height: this.m_view.clientHeight, cScale: window.devicePixelRatio || 1};
+        console.log("5587");
         this.resizeCanvas();
         try {
             this.m_gl = this.m_canvas.getContext("webgl", { antialias: true, premultipliedAlpha: false, alpha: false });
@@ -85,6 +86,7 @@ export class EEGChart
             const n = this.m_channels.length;
             this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!));
             this.m_channelsMap[channel] = n;
+            this.reshape(this.m_screen.width, this.m_channels.length * 56.8);
         }
         this.m_channels[this.m_channelsMap[channel]].appendData(data);
     }
@@ -99,6 +101,7 @@ export class EEGChart
         const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
 
         this.m_grid.render(this.m_channels.length, channelHeight);
+
         this.m_channels.forEach((channel: EEGChannel, index: number) => {
             channel.render(index, channelHeight, channelHeight / 2, this.m_screen);
         });
@@ -106,11 +109,24 @@ export class EEGChart
 
     private resizeCanvas()
     {
+
         this.m_canvas.style.width = this.m_screen.width + "px";
         this.m_canvas.style.height = this.m_screen.height + "px";
         this.m_canvas.width = this.m_screen.width * this.m_screen.cScale;
         this.m_canvas.height = this.m_screen.height * this.m_screen.cScale;
     }
+    // private resizeScreen()
+    // {
+    //     const channelHeightInCM2 = 1.5;
+    //     const channelHeight2 = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM2;
+    //     //this.m_screen.width + "px";
+    //     if(( (this.m_screen.height- this.m_screen.height % channelHeight2)/channelHeight2) <= this.m_channels.length)
+    //     {
+    //         this.m_screen.height = this.m_channels.length * channelHeight2;
+    //     }
+    //
+    //
+    // }
 
     public reshape(w: number, h: number)
     {

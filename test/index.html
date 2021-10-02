@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8"/>
         <title>SciVi-Chart-Test</title>
-        
+        <link rel="stylesheet" href="../src/styles/navbar.css">
         <script src="../build/scivi-eeg-chart.min.js"></script>
 
         <script>
@@ -32,13 +32,60 @@
                     g_eegChart.appendChannelData("Cz", [ data() ]);
                     g_eegChart.appendChannelData("C4", [ data() ]);
                     g_eegChart.appendChannelData("T4", [ data() ]);
+                    g_eegChart.appendChannelData("", [ data() ]);
+                    g_eegChart.appendChannelData("1", [ data() ]);
+                    g_eegChart.appendChannelData("2", [ data() ]);
+                    g_eegChart.appendChannelData("3", [ data() ]);
+                    g_eegChart.appendChannelData("4", [ data() ]);
+                    g_eegChart.appendChannelData("5", [ data() ]);
+                    g_eegChart.appendChannelData("6", [ data() ]);
+                    g_eegChart.appendChannelData("7", [ data() ]);
+                    g_eegChart.appendChannelData("8", [ data() ]);
+                    g_eegChart.appendChannelData("9", [ data() ]);
+                    g_eegChart.appendChannelData("10", [ data() ]);
+                    g_eegChart.appendChannelData("11", [ data() ]);
+                    g_eegChart.appendChannelData("12", [ data() ]);
+                    g_eegChart.appendChannelData("13", [ data() ]);
+                    g_eegChart.appendChannelData("14", [ data() ]);
+                    g_eegChart.appendChannelData("15", [ data() ]);
+                    g_eegChart.appendChannelData("16", [ data() ]);
+                    g_eegChart.appendChannelData("17", [ data() ]);
+                    g_eegChart.appendChannelData("18", [ data() ]);
+                    g_eegChart.appendChannelData("19", [ data() ]);
+                    g_eegChart.appendChannelData("20", [ data() ]);
+                    g_eegChart.appendChannelData("21", [ data() ]);
+                    g_eegChart.appendChannelData("22", [ data() ]);
+                    g_eegChart.appendChannelData("23", [ data() ]);
+                    g_eegChart.appendChannelData("24", [ data() ]);
+                    g_eegChart.appendChannelData("25", [ data() ]);
                     g_eegChart.render();
                 }, 10);
+
             }
         </script>
+        <style>
+            .scrl{
+                width: 100vw;
+                height: 100vh;
+                overflow-y: auto;
+            }
+        </style>
     </head>
 
+
     <body onload="main();" style="margin: 0px; padding: 0px;">
-        <div id="chart-test" style="width: 100vw; height: 100vh;"></div>
+    <div class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Channels
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="#">Link 1</a>
+                <a href="#">Link 2</a>
+                <a href="#">Link 3</a>
+            </div>
+        </div>
+    </div>
+    <div id="chart-test" class="scrl"></div>
     </body>
 </html>
