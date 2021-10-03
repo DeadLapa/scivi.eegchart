@@ -14,8 +14,10 @@ export class EEGChannel
     constructor(private m_name: string,
                 private m_color: vec3,
                 private m_historyLength: number,
-                private m_gl: WebGLRenderingContext)
+                private m_gl: WebGLRenderingContext,
+                private m_visible: boolean)
     {
+        this.m_visible = true;
         const n = this.m_historyLength * 2;
         this.m_data = new Float32Array(n);
         for (let i = 0, x = 0; i < n; ++x) {
@@ -52,6 +54,18 @@ export class EEGChannel
         return this.m_name;
     }
 
+    get getVisible(): boolean
+    {
+        return this.m_visible;
+    }
+    public visibleTurnOn()
+    {
+        this.m_visible = true;
+    }
+    public visibleTurnOff()
+    {
+        this.m_visible = false;
+    }
     public appendData(data: number[])
     {
         const n = this.m_historyLength * 2;
@@ -63,22 +77,25 @@ export class EEGChannel
         this.m_gl.bufferSubData(this.m_gl.ARRAY_BUFFER, 0, this.m_data);
     }
 
-    public render(channelIndex: number, channelHeight: number, channelScale: number, screen: EEGScreen)
-    {
-        const mvp = mat4.fromValues(
-            2.0 / (this.m_historyLength - 1), 0.0,                                        0.0, 0.0,
-            0.0,                              channelScale,                               0.0, 0.0,
-            0.0,                              0.0,                                        1.0, 0.0,
-            -1.0,                             1.0 - channelHeight * (channelIndex + 0.5), 0.0, 1.0
-        );
+    public render(channelIndex: number, channelHeight: number, channelScale: number, screen: EEGScreen) {
+        if (this.m_visible) {
+            const mvp = mat4.fromValues(
+                2.0 / (this.m_historyLength - 1), 0.0, 0.0, 0.0,
+                0.0, channelScale, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                -1.0, 1.0 - channelHeight * (channelIndex + 0.5), 0.0, 1.0
+            );
 
-        this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
-        EEGChannel.m_shaderProgram.activate();
-        EEGChannel.m_shaderProgram.setUniformMat4("u_mvp", mvp);
-        EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
-        this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
-        EEGChannel.m_shaderProgram.deactivate();
+            this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
+            EEGChannel.m_shaderProgram.activate();
+            EEGChannel.m_shaderProgram.setUniformMat4("u_mvp", mvp);
+            EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
+            this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
+            EEGChannel.m_shaderProgram.deactivate();
 
-        this.m_label.render(channelIndex, channelHeight, screen);
+            this.m_label.render(channelIndex, channelHeight, screen);
+        }
+
     }
+
 }
