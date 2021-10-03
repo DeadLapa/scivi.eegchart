@@ -87,7 +87,7 @@ export class EEGChart
             const n = this.m_channels.length;
             this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!, true));
             this.m_channelsMap[channel] = n;
-            this.reshape(this.m_screen.width, this.m_channels.length * 56.8);
+            this.reshape(this.m_screen.width, (this.m_channels.length + 1) * 56.8);
         }
         this.m_channels[this.m_channelsMap[channel]].appendData(data);
     }
@@ -95,16 +95,24 @@ export class EEGChart
     {
         let CurButton = document.createElement("button");
         CurButton.name = channel;
-        CurButton.onclick = function () {EEGChar.turnOffVisibility(channel)};
+        CurButton.textContent = channel;
+        CurButton.onclick = function () {
+            EEGChar.turnVisibility(channel);
+            if (CurButton.className != "button-navbar-def")
+                CurButton.className = "button-navbar-def";
+            else
+                CurButton.className = "button-navbar-dis";
+        };
+        CurButton.className = "button-navbar-def";
         return CurButton;
     }
-    public turnOffVisibility(channel: string): boolean {
+    public turnVisibility(channel: string) {
         if(this.m_channels[this.m_channelsMap[channel]].getVisible)
             this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
         else
             this.m_channels[this.m_channelsMap[channel]].visibleTurnOn();
         this.render();
-        return this.m_channels[this.m_channelsMap[channel]].getVisible;
+        //return this.m_channels[this.m_channelsMap[channel]].getVisible;
     }
     // public turnOnVisibility(channel: string) {
     //     this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
@@ -118,11 +126,20 @@ export class EEGChart
 
         const channelHeightInCM = 1.5;
         const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
-
-        this.m_grid.render(this.m_channels.length, channelHeight);
-
+        let visibleChannelsCount = 0;
+        this.m_channels.forEach((channel: EEGChannel, index) => {
+            if(channel.getVisible){
+                visibleChannelsCount++;
+            }
+        })
+        this.m_grid.render(visibleChannelsCount, channelHeight);
+        let indexVisibleChannel = 0;
         this.m_channels.forEach((channel: EEGChannel, index: number) => {
-            channel.render(index, channelHeight, channelHeight / 2, this.m_screen);
+            if(channel.getVisible){
+                channel.render(indexVisibleChannel, channelHeight, channelHeight / 2, this.m_screen);
+                indexVisibleChannel++;
+            }
+
         });
     }
 
