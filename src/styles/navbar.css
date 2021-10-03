@@ -1,7 +1,8 @@
 .navbar {
     overflow: hidden;
-    background-color: #333;
+    background: linear-gradient(45deg, #102eff, #d2379b);;
     font-family: Arial, Helvetica, sans-serif;
+
 }
 
 .navbar a {
@@ -12,11 +13,14 @@
     padding: 14px 16px;
     text-decoration: none;
     overflow: hidden;
+
 }
 
 .dropdown {
     float: left;
     overflow: hidden;
+
+
 }
 
 .dropdown .dropbtn {
@@ -28,10 +32,15 @@
     background-color: inherit;
     font-family: inherit;
     margin: 0;
+    overflow: hidden;
+
+
 }
 
 .navbar a:hover, .dropdown:hover .dropbtn {
     background-color: red;
+
+
 }
 
 .dropdown-content {
@@ -41,6 +50,8 @@
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+    overflow: scroll;
+    max-height: 350px;
 }
 
 .dropdown-content a {
@@ -50,6 +61,7 @@
     text-decoration: none;
     display: block;
     text-align: left;
+
 }
 
 .dropdown-content a:hover {
@@ -72,6 +84,7 @@
     font-size: 16px;
     cursor: pointer;
     width: 160px;
+    height: 56.7px;
     display: block;
 }
 .button-navbar:hover{

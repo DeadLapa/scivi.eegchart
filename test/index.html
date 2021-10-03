@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="overflow: hidden">
     <head>
         <meta charset="utf-8"/>
         <title>SciVi-Chart-Test</title>
@@ -16,7 +16,7 @@
 
             function main()
             {
-                g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"));
+                g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"), document.getElementById("navbar-list"));
                 g_eegChart.render();
 
                 setInterval(function () {
@@ -32,7 +32,7 @@
                     g_eegChart.appendChannelData("Cz", [ data() ]);
                     g_eegChart.appendChannelData("C4", [ data() ]);
                     g_eegChart.appendChannelData("T4", [ data() ]);
-                    g_eegChart.appendChannelData("", [ data() ]);
+                    g_eegChart.appendChannelData("0", [ data() ]);
                     g_eegChart.appendChannelData("1", [ data() ]);
                     g_eegChart.appendChannelData("2", [ data() ]);
                     g_eegChart.appendChannelData("3", [ data() ]);
@@ -79,13 +79,15 @@
             <button class="dropbtn">Channels
                 <i class="fa fa-caret-down"></i>
             </button>
-            <div class="dropdown-content">
-                <a href="#">Link 1</a>
-                <a href="#">Link 2</a>
-                <a href="#">Link 3</a>
+
+            <div id="navbar-list" class="dropdown-content">
+<!--                <button class="button-navbar" onclick="g_eegChart.turnOffVisibility('T3')">T3</button>-->
+<!--                <button class="button-navbar"> Link 1 </button>-->
             </div>
+
         </div>
+        <div id="chart-test" class="scrl"></div>
     </div>
-    <div id="chart-test" class="scrl"></div>
+
     </body>
 </html>
