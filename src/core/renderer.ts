@@ -15,7 +15,7 @@ export class EEGChart
     private m_grid: EEGGrid;
     private m_screen: EEGScreen;
 
-    constructor(private m_view: HTMLElement)
+    constructor(private m_view: HTMLElement, private m_navbar: HTMLElement)
     {
         this.m_historyLength = 1000;
         this.m_channels = [];
@@ -83,14 +83,33 @@ export class EEGChart
     public appendChannelData(channel: string, data: number[])
     {
         if (this.m_channelsMap[channel] === undefined) {
+            this.m_navbar.appendChild(this.appendButtonForChannel(channel, this));
             const n = this.m_channels.length;
-            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!));
+            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!, true));
             this.m_channelsMap[channel] = n;
             this.reshape(this.m_screen.width, this.m_channels.length * 56.8);
         }
         this.m_channels[this.m_channelsMap[channel]].appendData(data);
     }
-
+    public appendButtonForChannel(channel: string, EEGChar: EEGChart) : HTMLButtonElement
+    {
+        let CurButton = document.createElement("button");
+        CurButton.name = channel;
+        CurButton.onclick = function () {EEGChar.turnOffVisibility(channel)};
+        return CurButton;
+    }
+    public turnOffVisibility(channel: string): boolean {
+        if(this.m_channels[this.m_channelsMap[channel]].getVisible)
+            this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
+        else
+            this.m_channels[this.m_channelsMap[channel]].visibleTurnOn();
+        this.render();
+        return this.m_channels[this.m_channelsMap[channel]].getVisible;
+    }
+    // public turnOnVisibility(channel: string) {
+    //     this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
+    //     this.render();
+    // }
     public render()
     {
         let gl = this.m_gl!!;
