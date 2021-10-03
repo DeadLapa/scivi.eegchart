@@ -11,6 +11,7 @@
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    overflow: hidden;
 }
 
 .dropdown {
@@ -56,5 +57,18 @@
 }
 
 .dropdown:hover .dropdown-content {
+    display: block;
+}
+.button-navbar {
+    /*background-color: #4CAF50; !* Green *!*/
+    border: none;
+    border: 1px solid black;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 160px;
     display: block;
 }
