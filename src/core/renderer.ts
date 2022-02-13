@@ -15,7 +15,7 @@ export class EEGChart
     private m_grid: EEGGrid;
     private m_screen: EEGScreen;
 
-    constructor(private m_view: HTMLElement)
+    constructor(private m_view: HTMLElement, private m_navbar: HTMLElement)
     {
         this.m_historyLength = 1000;
         this.m_channels = [];
@@ -24,6 +24,7 @@ export class EEGChart
         this.m_canvas = document.createElement("canvas");
         this.m_view.appendChild(this.m_canvas);
         this.m_screen = { width: this.m_view.clientWidth, height: this.m_view.clientHeight, cScale: window.devicePixelRatio || 1};
+        console.log("5587");
         this.resizeCanvas();
         try {
             this.m_gl = this.m_canvas.getContext("webgl", { antialias: true, premultipliedAlpha: false, alpha: false });
@@ -82,13 +83,41 @@ export class EEGChart
     public appendChannelData(channel: string, data: number[])
     {
         if (this.m_channelsMap[channel] === undefined) {
+            this.m_navbar.appendChild(this.appendButtonForChannel(channel, this));
             const n = this.m_channels.length;
-            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!));
+            this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!, true));
             this.m_channelsMap[channel] = n;
+            this.reshape(this.m_screen.width, (this.m_channels.length + 1) * 56.8);
         }
         this.m_channels[this.m_channelsMap[channel]].appendData(data);
     }
-
+    public appendButtonForChannel(channel: string, EEGChar: EEGChart) : HTMLButtonElement
+    {
+        let CurButton = document.createElement("button");
+        CurButton.name = channel;
+        CurButton.textContent = channel;
+        CurButton.onclick = function () {
+            EEGChar.turnVisibility(channel);
+            if (CurButton.className != "button-navbar-def")
+                CurButton.className = "button-navbar-def";
+            else
+                CurButton.className = "button-navbar-dis";
+        };
+        CurButton.className = "button-navbar-def";
+        return CurButton;
+    }
+    public turnVisibility(channel: string) {
+        if(this.m_channels[this.m_channelsMap[channel]].getVisible)
+            this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
+        else
+            this.m_channels[this.m_channelsMap[channel]].visibleTurnOn();
+        this.render();
+        //return this.m_channels[this.m_channelsMap[channel]].getVisible;
+    }
+    // public turnOnVisibility(channel: string) {
+    //     this.m_channels[this.m_channelsMap[channel]].visibleTurnOff();
+    //     this.render();
+    // }
     public render()
     {
         let gl = this.m_gl!!;
@@ -97,20 +126,43 @@ export class EEGChart
 
         const channelHeightInCM = 1.5;
         const channelHeight = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM;
-
-        this.m_grid.render(this.m_channels.length, channelHeight);
+        let visibleChannelsCount = 0;
+        this.m_channels.forEach((channel: EEGChannel, index) => {
+            if(channel.getVisible){
+                visibleChannelsCount++;
+            }
+        })
+        this.m_grid.render(visibleChannelsCount, channelHeight);
+        let indexVisibleChannel = 0;
         this.m_channels.forEach((channel: EEGChannel, index: number) => {
-            channel.render(index, channelHeight, channelHeight / 2, this.m_screen);
+            if(channel.getVisible){
+                channel.render(indexVisibleChannel, channelHeight, channelHeight / 2, this.m_screen);
+                indexVisibleChannel++;
+            }
+
         });
     }
 
     private resizeCanvas()
     {
+
         this.m_canvas.style.width = this.m_screen.width + "px";
         this.m_canvas.style.height = this.m_screen.height + "px";
         this.m_canvas.width = this.m_screen.width * this.m_screen.cScale;
         this.m_canvas.height = this.m_screen.height * this.m_screen.cScale;
     }
+    // private resizeScreen()
+    // {
+    //     const channelHeightInCM2 = 1.5;
+    //     const channelHeight2 = (2.0 / (this.m_screen.height / 96.0 * 2.54)) * channelHeightInCM2;
+    //     //this.m_screen.width + "px";
+    //     if(( (this.m_screen.height- this.m_screen.height % channelHeight2)/channelHeight2) <= this.m_channels.length)
+    //     {
+    //         this.m_screen.height = this.m_channels.length * channelHeight2;
+    //     }
+    //
+    //
+    // }
 
     public reshape(w: number, h: number)
     {
