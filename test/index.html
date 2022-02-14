@@ -8,43 +8,31 @@
 
         <script>
             var g_eegChart;
+            var array = [false,true,false,true,false];
 
-            function data()
+            function data(i)
             {
-                return (Math.random() < 0.5 ? -1 : 1) * Math.random();
+                return array[i];
             }
 
             function main()
             {
                 g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"), document.getElementById("navbar-list"));
-                g_eegChart.render();
+                //g_eegChart.render();
 
                 setInterval(function () {
-                    g_eegChart.appendChannelData("Fp1", [ data() ]);
-                    g_eegChart.appendChannelData("Fp2", [ data() ]);
-                    g_eegChart.appendChannelData("F7", [ data() ]);
-                    g_eegChart.appendChannelData("F3", [ data() ]);
-                    g_eegChart.appendChannelData("Fz", [ data() ]);
-                    g_eegChart.appendChannelData("F4", [ data() ]);
-                    g_eegChart.appendChannelData("F8", [ data() ]);
-                    g_eegChart.appendChannelData("T3", [ data() ]);
-                    g_eegChart.appendChannelData("C3", [ data() ]);
-                    g_eegChart.appendChannelData("Cz", [ data() ]);
-                    g_eegChart.appendChannelData("C4", [ data() ]);
-                    g_eegChart.appendChannelData("T4", [ data() ]);
-                    g_eegChart.appendChannelData("0", [ data() ]);
-                    g_eegChart.appendChannelData("1", [ data() ]);
-                    g_eegChart.appendChannelData("2", [ data() ]);
-                    g_eegChart.appendChannelData("3", [ data() ]);
-                    g_eegChart.appendChannelData("4", [ data() ]);
-                    g_eegChart.appendChannelData("5", [ data() ]);
-                    g_eegChart.appendChannelData("6", [ data() ]);
-                    g_eegChart.appendChannelData("7", [ data() ]);
-                    g_eegChart.appendChannelData("8", [ data() ]);
-                    g_eegChart.appendChannelData("9", [ data() ]);
-
+                    // for( var i in array)
+                    // {
+                    //     if(array[i])
+                    //         g_eegChart.appendChannelData(i, [ -1, ]);
+                    // }
+                    //
+                    // g_eegChart.appendChannelData("1", [   ]);
+                    // g_eegChart.appendChannelData("2", [  ]);
+                    // g_eegChart.appendChannelData("8", [ -2,-3,-2,0,1,2,-2 ]);
+                    g_eegChart.appendChannelData("8", 0);
                     g_eegChart.render();
-                }, 10);
+                }, 100);
 
             }
         </script>

@@ -90,7 +90,7 @@ export class EEGChannel
             EEGChannel.m_shaderProgram.activate();
             EEGChannel.m_shaderProgram.setUniformMat4("u_mvp", mvp);
             EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
-            this.m_gl.drawArrays(this.m_gl.LINE_STRIP, 0, this.m_historyLength);
+            this.m_gl.drawArrays(this.m_gl.LINES, 0, this.m_historyLength);
             EEGChannel.m_shaderProgram.deactivate();
 
             this.m_label.render(channelIndex, channelHeight, screen);
