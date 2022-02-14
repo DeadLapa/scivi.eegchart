@@ -9,8 +9,12 @@
         <script>
             var g_eegChart;
             var array = [false,true,false,true,false];
+            function data()
+            {
+                return (Math.random() < 0.5 ? -1 : 1) * Math.random();
+            }
 
-            function data(i)
+            function data1(i)
             {
                 return array[i];
             }
@@ -30,7 +34,11 @@
                     // g_eegChart.appendChannelData("1", [   ]);
                     // g_eegChart.appendChannelData("2", [  ]);
                     // g_eegChart.appendChannelData("8", [ -2,-3,-2,0,1,2,-2 ]);
-                    g_eegChart.appendChannelData("8", 0);
+
+                    g_eegChart.appendChannelData("Dio", [data()]);
+
+                    g_eegChart.appendChannelData("Jojo", [data()]);
+                    g_eegChart.appendChannelData("Guit", [data()]);
                     g_eegChart.render();
                 }, 100);
 
@@ -59,8 +67,8 @@
             </div>
 
         </div>
-        <div id="chart-test" class="scrl"></div>
-    </div>
 
+    </div>
+    <div id="chart-test" class="scrl"></div>
     </body>
 </html>

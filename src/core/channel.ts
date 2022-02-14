@@ -7,8 +7,11 @@ export class EEGChannel
 {
     private m_vbo: WebGLBuffer | null;
     private m_data: Float32Array;
+    private m_soundGroupDisplays: Float32Array;
+    private m_soundGroupScounts: Float32Array;
     private m_label: EEGLabel;
-
+    private m_curGroup: number;
+    private m_lastData: boolean;
     private static m_shaderProgram: EEGShaderProgram;
 
     constructor(private m_name: string,
@@ -17,12 +20,20 @@ export class EEGChannel
                 private m_gl: WebGLRenderingContext,
                 private m_visible: boolean)
     {
+        this.m_curGroup = -1;
+        this.m_lastData = false;
         this.m_visible = true;
         const n = this.m_historyLength * 2;
+        this.m_soundGroupDisplays = new Float32Array(n);
+        this.m_soundGroupScounts = new Float32Array(n);
         this.m_data = new Float32Array(n);
-        for (let i = 0, x = 0; i < n; ++x) {
+        for (let i = 0, x = 0,q; i < n; ++x) {
             this.m_data[i++] = x;
+            this.m_soundGroupDisplays[i] = 0;
+            this.m_soundGroupScounts[i] = 0;
             this.m_data[i++] = 0;
+            this.m_soundGroupDisplays[i] = 0;
+            this.m_soundGroupScounts[i] = 0;
         }
         this.m_vbo = this.m_gl.createBuffer();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
@@ -69,10 +80,59 @@ export class EEGChannel
     public appendData(data: number[])
     {
         const n = this.m_historyLength * 2;
-        for (let i = data.length * 2 + 1, j = 1; i < n; i += 2, j += 2)
-            this.m_data[j] = this.m_data[i];
-        for (let i = Math.max(this.m_historyLength - data.length, 0) * 2 + 1, j = 0; i < n; i += 2, ++j)
-            this.m_data[i] = data[j];
+        let booleanData: boolean;
+        if(data[0] > 0.5)
+            booleanData = true;
+        else
+            booleanData = false;
+        if(this.m_curGroup == -1)
+        {
+            this.m_curGroup +=1;
+            if(booleanData == false)
+            {
+                this.m_soundGroupDisplays[this.m_curGroup] +=1;
+            }
+            else
+            {
+                this.m_soundGroupScounts[this.m_curGroup] +=1;
+            }
+        }
+        else
+        {
+            if(booleanData != this.m_lastData)
+            {
+                if(this.m_lastData == true)
+                {
+                    this.m_curGroup +=1;
+                    this.m_soundGroupDisplays[this.m_curGroup] += this.m_soundGroupDisplays[this.m_curGroup-1]+this.m_soundGroupDisplays[this.m_curGroup-1];
+                }
+                else
+                {
+                    this.m_soundGroupScounts[this.m_curGroup] +=1;
+                }
+
+
+            }
+            else
+            {
+                if(booleanData == false)
+                {
+                    this.m_soundGroupDisplays[this.m_curGroup] +=1;
+                }
+                else
+                {
+                    this.m_soundGroupScounts[this.m_curGroup] +=1;
+                }
+            }
+
+        }
+        this.m_lastData = booleanData;
+
+
+        //for (let i = data.length * 2 + 1, j = 1; i < n; i += 2, j += 2)
+       //     this.m_data[j] = this.m_data[i];
+        //for (let i = Math.max(this.m_historyLength - data.length, 0) * 2 + 1, j = 0; i < n; i += 2, ++j)
+        //    this.m_data[i] = data[j];
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
         this.m_gl.bufferSubData(this.m_gl.ARRAY_BUFFER, 0, this.m_data);
     }
@@ -90,7 +150,11 @@ export class EEGChannel
             EEGChannel.m_shaderProgram.activate();
             EEGChannel.m_shaderProgram.setUniformMat4("u_mvp", mvp);
             EEGChannel.m_shaderProgram.setUniformVec3("u_color", this.m_color);
-            this.m_gl.drawArrays(this.m_gl.LINES, 0, this.m_historyLength);
+            for (let i=0; i <= this.m_curGroup;i++)
+            {
+                this.m_gl.drawArrays(this.m_gl.LINE_STRIP, this.m_soundGroupDisplays[i]*2, this.m_soundGroupScounts[i]*2);
+            }
+
             EEGChannel.m_shaderProgram.deactivate();
 
             this.m_label.render(channelIndex, channelHeight, screen);
