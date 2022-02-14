@@ -27,7 +27,7 @@ export class EEGChannel
         this.m_soundGroupDisplays = new Float32Array(n);
         this.m_soundGroupScounts = new Float32Array(n);
         this.m_data = new Float32Array(n);
-        for (let i = 0, x = 0,q; i < n; ++x) {
+        for (let i = 0, x = 0; i < n; ++x) {
             this.m_data[i++] = x;
             this.m_soundGroupDisplays[i] = 0;
             this.m_soundGroupScounts[i] = 0;
@@ -79,16 +79,13 @@ export class EEGChannel
     }
     public appendData(data: number[])
     {
-        const n = this.m_historyLength * 2;
+        //const n = this.m_historyLength * 2;
         let booleanData: boolean;
-        if(data[0] > 0.5)
-            booleanData = true;
-        else
-            booleanData = false;
+        booleanData = data[0] > 0.5;
         if(this.m_curGroup == -1)
         {
             this.m_curGroup +=1;
-            if(booleanData == false)
+            if(!booleanData)
             {
                 this.m_soundGroupDisplays[this.m_curGroup] +=1;
             }
@@ -101,10 +98,10 @@ export class EEGChannel
         {
             if(booleanData != this.m_lastData)
             {
-                if(this.m_lastData == true)
+                if(this.m_lastData)
                 {
                     this.m_curGroup +=1;
-                    this.m_soundGroupDisplays[this.m_curGroup] += this.m_soundGroupDisplays[this.m_curGroup-1]+this.m_soundGroupDisplays[this.m_curGroup-1];
+                    this.m_soundGroupDisplays[this.m_curGroup] += this.m_soundGroupDisplays[this.m_curGroup-1]+this.m_soundGroupScounts[this.m_curGroup-1];
                 }
                 else
                 {
@@ -115,7 +112,7 @@ export class EEGChannel
             }
             else
             {
-                if(booleanData == false)
+                if(!booleanData)
                 {
                     this.m_soundGroupDisplays[this.m_curGroup] +=1;
                 }
