@@ -8,7 +8,7 @@
 
         <script>
             var g_eegChart;
-            var array = [false,true,true,true,true,true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false];
+            var array = [false,true,true,true,true,true,true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false];
             function data()
             {
                 return (Math.random() < 0.5 ? 1 : 0);
@@ -21,7 +21,7 @@
 
             function main()
             {
-                g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"), document.getElementById("navbar-list"));
+                g_eegChart = new EEGChart.EEGChart(document.getElementById("chart-test"))//, document.getElementById("navbar-list"));
                 //g_eegChart.render();
                 let i =0;
                 setInterval(function () {
@@ -35,8 +35,15 @@
                     // g_eegChart.appendChannelData("2", [  ]);
                     // g_eegChart.appendChannelData("8", [ -2,-3,-2,0,1,2,-2 ]);
 
-                    g_eegChart.appendChannelData("Dio", [data()]);
-                    g_eegChart.appendChannelData("jojo", [array[i++]]);
+                    g_eegChart.appendChannelData("1", [data()]);
+                    g_eegChart.appendChannelData("2", [data()]);
+                    g_eegChart.appendChannelData("3", [data()]);
+                    g_eegChart.appendChannelData("4", [data()]);
+                    g_eegChart.appendChannelData("5", [data()]);
+                    g_eegChart.appendChannelData("6", [data()]);
+                    g_eegChart.appendChannelData("7", [data()]);
+                    g_eegChart.appendChannelData("8", [data()]);
+                    //g_eegChart.appendChannelData("jojo", [array[i++]]);
                    // g_eegChart.appendChannelData("Jojo", [data()]);
                     //g_eegChart.appendChannelData("Guit", [data()]);
                     //g_eegChart.appendChannelData("1", [1]);
@@ -56,20 +63,20 @@
 
 
     <body onload="main();" style="margin: 0px; padding: 0px;">
-    <div class="navbar">
-        <div class="dropdown">
-            <button class="dropbtn">Channels
-                <i class="fa fa-caret-down"></i>
-            </button>
+<!--    <div class="navbar">-->
+<!--        <div class="dropdown">-->
+<!--            <button class="dropbtn">Channels-->
+<!--                <i class="fa fa-caret-down"></i>-->
+<!--            </button>-->
 
-            <div id="navbar-list" class="dropdown-content">
-<!--                <button class="button-navbar" onclick="g_eegChart.turnOffVisibility('T3')">T3</button>-->
-<!--                <button class="button-navbar"> Link 1 </button>-->
-            </div>
+<!--&lt;!&ndash;            <div id="navbar-list" class="dropdown-content">&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <button class="button-navbar" onclick="g_eegChart.turnOffVisibility('T3')">T3</button>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                <button class="button-navbar"> Link 1 </button>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
 
-        </div>
+<!--        </div>-->
 
-    </div>
+<!--    </div>-->
     <div id="chart-test" class="scrl"></div>
     </body>
 </html>

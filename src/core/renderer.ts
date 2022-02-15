@@ -15,7 +15,7 @@ export class EEGChart
     private m_grid: EEGGrid;
     private m_screen: EEGScreen;
 
-    constructor(private m_view: HTMLElement, private m_navbar: HTMLElement)
+    constructor(private m_view: HTMLElement)//, private m_navbar: HTMLElement)
     {
         this.m_historyLength = 1000;
         this.m_channels = [];
@@ -83,7 +83,7 @@ export class EEGChart
     public appendChannelData(channel: string, data: number[])
     {
         if (this.m_channelsMap[channel] === undefined) {
-            this.m_navbar.appendChild(this.appendButtonForChannel(channel, this));
+            //this.m_navbar.appendChild(this.appendButtonForChannel(channel, this));
             const n = this.m_channels.length;
             this.m_channels.push(new EEGChannel(channel, this.getColor(n), this.m_historyLength, this.m_gl!!, true));
             this.m_channelsMap[channel] = n;
