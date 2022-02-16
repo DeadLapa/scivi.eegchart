@@ -33,7 +33,7 @@ export class EEGChannel
             this.m_data[i++] = x;
             this.m_soundGroupDisplays[i] = 0;
             this.m_soundGroupScounts[i] = 0;
-            this.m_data[i++] = 0;
+            this.m_data[i++] = -0.3;
 
         }
         this.m_vbo = this.m_gl.createBuffer();
