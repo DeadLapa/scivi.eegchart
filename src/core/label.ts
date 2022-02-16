@@ -88,7 +88,7 @@ export class EEGLabel
                 const radius = 8 * screen.cScale;
                 ctx.font = fontSize + "px Helvetica Neue, Helvetica, Arial, sans-serif";
                 // this.m_size = { width: ctx.measureText(this.m_text).width + padding * 2, height: fontSize + 2 };
-                this.m_size = { width: 30 * screen.cScale, height: 20 * screen.cScale };
+                this.m_size = { width: 150 * screen.cScale, height: 20 * screen.cScale };
                 cvs.width = this.m_size.width;
                 cvs.height = this.m_size.height;
                 ctx.textBaseline = "middle";
