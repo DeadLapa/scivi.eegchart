@@ -8,12 +8,27 @@
 
         <script>
             var g_eegChart;
-            var array = [false,true,true,true,true,true,true,true,true,true,true,true,true,true,false,false,false,false,false,false,false,false,false];
+            var array1 = [false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true,false,true];
+
+            console.log(mas);
             function data()
             {
                 return (Math.random() < 0.5 ? 1 : 0);
             }
+            var n = 500, m = 4;
+            var mas = [];
+            for (var i = 0; i < m; i++){
+                mas[i] = [];
+                for (var j = 0; j < n; j++){
+                    if(i==3)
+                        mas[i][j] = 1;
+                    else
+                        mas[i][j] = data();
 
+
+                }
+
+            }
             function data1(i)
             {
                 return array[i];
@@ -35,18 +50,20 @@
                     // g_eegChart.appendChannelData("2", [  ]);
                     // g_eegChart.appendChannelData("8", [ -2,-3,-2,0,1,2,-2 ]);
 
-                    g_eegChart.appendChannelData("1", [data()]);
+                    //g_eegChart.appendChannelData("1", [data()]);
                     g_eegChart.appendChannelData("2", [data()]);
-                    g_eegChart.appendChannelData("3", [data()]);
-                    g_eegChart.appendChannelData("4", [data()]);
-                    g_eegChart.appendChannelData("5", [data()]);
-                    g_eegChart.appendChannelData("6", [data()]);
-                    g_eegChart.appendChannelData("7", [data()]);
-                    g_eegChart.appendChannelData("8", [data()]);
+                    g_eegChart.appendChannelData("3", [mas[0][i]]);
+                    g_eegChart.appendChannelData("4", [mas[1][i]]);
+                    g_eegChart.appendChannelData("5", [mas[2][i]]);
+                    g_eegChart.appendChannelData("6", [mas[3][i]]);
+                    //g_eegChart.appendChannelData("6", [data()]);
+                    //g_eegChart.appendChannelData("7", [data()]);
+                    //g_eegChart.appendChannelData("8", [data()]);
                     //g_eegChart.appendChannelData("jojo", [array[i++]]);
                    // g_eegChart.appendChannelData("Jojo", [data()]);
                     //g_eegChart.appendChannelData("Guit", [data()]);
                     //g_eegChart.appendChannelData("1", [1]);
+                    i++;
                     g_eegChart.render();
                 }, 100);
 

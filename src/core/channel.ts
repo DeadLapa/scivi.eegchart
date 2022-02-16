@@ -28,12 +28,13 @@ export class EEGChannel
         this.m_soundGroupScounts = new Float32Array(n);
         this.m_data = new Float32Array(n);
         for (let i = 0, x = 0; i < n; ++x) {
+            this.m_soundGroupDisplays[i] = 0;
+            this.m_soundGroupScounts[i] = 0;
             this.m_data[i++] = x;
             this.m_soundGroupDisplays[i] = 0;
             this.m_soundGroupScounts[i] = 0;
             this.m_data[i++] = 0;
-            this.m_soundGroupDisplays[i] = 0;
-            this.m_soundGroupScounts[i] = 0;
+
         }
         this.m_vbo = this.m_gl.createBuffer();
         this.m_gl.bindBuffer(this.m_gl.ARRAY_BUFFER, this.m_vbo);
@@ -101,7 +102,7 @@ export class EEGChannel
                 if(this.m_lastData)
                 {
                     this.m_curGroup +=1;
-                    this.m_soundGroupDisplays[this.m_curGroup] += this.m_soundGroupDisplays[this.m_curGroup-1]+this.m_soundGroupScounts[this.m_curGroup-1];
+                    this.m_soundGroupDisplays[this.m_curGroup] += this.m_soundGroupDisplays[this.m_curGroup-1]+this.m_soundGroupScounts[this.m_curGroup-1]+1;
                 }
                 else
                 {
